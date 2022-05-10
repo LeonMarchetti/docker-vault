@@ -2,7 +2,7 @@
 
 ## Setup
 
-1. Arrancar contenedores: `docker-compose up --build --force-recreate
+1. Arrancar contenedores: `docker-compose up --build --force-recreate`
 2. Ir a interfaz web: `localhost:8200/ui` y seguir los pasos para abrir la bóveda e iniciar sesión con el token de root.
 
 ### Habilitar SSH OTP desde la interfaz web
