@@ -21,7 +21,6 @@ services:
       context: .
       dockerfile: vault_ssh_helper.Dockerfile
     container_name: vault_ssh_helper
-    links: [vault_server]
 
   vault_client:
     build:
@@ -29,7 +28,6 @@ services:
       dockerfile: vault_client.Dockerfile
     entrypoint: tail -f /dev/null
     container_name: vault_client
-    links: [vault_server]
     environment:
       NO_PROXY: ${no_proxy},vault_server
       VAULT_ADDR: http://vault_server:8200
