@@ -16,12 +16,12 @@
 
     > Es el nombre de usuario que usa vault si no se escribe en `vault write ssh/...`, si se hace desde una terminal
 
-6. Desplegar **Options** y escribir **170.18.0.0/16** en **CIDR List** y dar a **Create role**
-    > Es la misma red definida en `docker-compose.yaml` bajo `networks: vault-net`
+6. Desplegar **Options** y escribir la red con máscara en **CIDR List** y dar a **Create role**
+    > Puedo usar `docker network inspect docker_vault_default` para ver la Subnet para colocar en **CIDR List**
 
 7. Ir a **Generate Credential**
 8. Escribir nombre de usuario del sistema en **Username** y dirección IP en **IP Address** y dar a **Generate**
-    > Puedo usar `docker network inspect docker_vault_vault-net` para ver las direcciones IP de los contenedores
+    > Puedo usar `docker network inspect docker_vault_default` para ver las direcciones IP de los contenedores
 
     > El nombre de usuario puede otro a parte del definido en **Default Username**
 

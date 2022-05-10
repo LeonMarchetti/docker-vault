@@ -5,7 +5,6 @@ services:
       dockerfile: vault_server.Dockerfile
     container_name: vault_server
     ports: [8200:8200]
-    networks: [vault-net]
     environment:
       SKIP_SETCAP: 1
       VAULT_ADDR: http://localhost:8200
@@ -22,7 +21,6 @@ services:
       context: .
       dockerfile: vault_ssh_helper.Dockerfile
     container_name: vault_ssh_helper
-    networks: [vault-net]
 
   vault_client:
     build:
@@ -30,7 +28,6 @@ services:
       dockerfile: vault_client.Dockerfile
     entrypoint: tail -f /dev/null
     container_name: vault_client
-    networks: [vault-net]
     environment:
       NO_PROXY: ${no_proxy},vault_server
       VAULT_ADDR: http://vault_server:8200
@@ -39,7 +36,6 @@ services:
   vault_db:
     image: postgres:11-alpine
     container_name: vault_db
-    networks: [vault-net]
     volumes:
       - ./volumes/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
@@ -50,9 +46,3 @@ services:
       interval: 1s
       timeout: 5s
       retries: 5
-
-networks:
-  vault-net:
-    ipam:
-      config:
-        - subnet: 170.18.0.0/16
