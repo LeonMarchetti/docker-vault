@@ -3,6 +3,11 @@ export VAULT_ADDR="http://localhost:8200"
 VAULT_SUBNET=`docker exec vault_server ip route | awk '!/default/ {print $1}'`
 SSH_HELPER_ADDR=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' vault_ssh_helper`
 
+PS4="$ " ; set -x
+
+vault audit list | grep -q "file/" \
+    || vault audit enable file file_path=/var/log/vault/vault_audit.log format=json
+
 vault secrets list | grep -q "ssh/" \
     || vault secrets enable ssh
 vault read ssh/roles/otp_role_ubuntu 1>/dev/null 2>&1 \
