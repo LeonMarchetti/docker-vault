@@ -38,7 +38,7 @@
 
 ### Habilitar SSH OTP desde un shell
 
-Ver [`setup-ssh`](setup-ssh), que es un script para ejecutar todos los comandos para habiliar el motor de secretos SSH, escribir un rol para iniciar sesión con SSH en el contenedor `vault_ssh_helper`, obtener una clave SSH dinámica de un solo uso y finalmente abrir una sesión SSH.
+Ver [`setup-ssh`](setup-ssh), que es un script para ejecutar todos los comandos para habilitar el motor de secretos SSH, escribir un rol para iniciar sesión con SSH en el contenedor `vault_ssh_helper`, obtener una clave SSH dinámica de un solo uso y finalmente abrir una sesión SSH.
 
 > En el script figuran comandos para averiguar las direcciones de red de los contenedores. El script los usa para no depender de direcciones fijas.
 
@@ -49,6 +49,31 @@ Desde una terminal, con token de root, ejecutar: `audit enable file file_path=/v
 Los logs se guardan en `./volumes/logs`.
 
 > Por alguna razón no pude hacerlo desde la interfaz web.
+
+## Credenciales dinámicas para PostgreSQL
+
+Ver [`setup-pq`](setup-pq), que es un script para ejecutar todos los comandos para habilitar el motor de secretos **database**, creando una configuración y un rol de conexión para permitir al usuario pedir una credencial dinámica, que Vault la cree y le de los permisos correspondientes y que el usuario lo pueda utilizar para abrir una sesión en la base de datos.
+
+### Ejemplo de uso de la credencial dinámica
+
+Acceder a la base de datos `test_db` en el servidor de PostgreSQL en el host `$DB_ADDR` usando el rol de Vault `my_db_role` para pedir la credencial.
+
+```bash
+$ vault read database/creds/my_db_role
+Key                Value
+---                -----
+lease_id           database/creds/my_db_role/R3XLhCems6ezDHb62fFvNrpd
+lease_duration     30m
+lease_renewable    true
+password           DEQKZTJk3ODZI-4lPhip
+username           v-root-my_db_ro-4M1jszoPz2Xp52Nx3XMY-1652442153
+
+$ psql -h $DB_ADDR -d test_db -U v-root-my_db_ro-4M1jszoPz2Xp52Nx3XMY-1652442153
+psql (11.16 (Debian 11.16-0+deb10u1), servidor 11.15)
+Digite «help» para obtener ayuda.
+
+[v-root-my_db_ro-4M1jszoPz2Xp52Nx3XMY-1652442153] test_db >
+```
 
 ## Acerca
 
