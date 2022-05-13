@@ -26,8 +26,9 @@ services:
     build:
       context: .
       dockerfile: vault_client.Dockerfile
-    entrypoint: tail -f /dev/null
     container_name: vault_client
+    profiles: [client]
+    entrypoint: tail -f /dev/null
     environment:
       NO_PROXY: ${no_proxy},vault_server
       VAULT_ADDR: http://vault_server:8200
