@@ -20,3 +20,12 @@ CREATE TABLE vault_ha_locks (
   valid_until                                 TIMESTAMP WITH TIME ZONE NOT NULL,
   CONSTRAINT ha_key PRIMARY KEY (ha_key)
 );
+
+\connect postgres postgres;
+create database test_db;
+\connect test_db;
+
+create table table_1 (
+  id int not null,
+  name varchar(30)
+);

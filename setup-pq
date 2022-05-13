@@ -1,0 +1,33 @@
+#!/bin/sh
+export VAULT_ADDR="http://localhost:8200"
+VAULT_DB_ADDR=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' vault_db`
+
+echo
+echo "vault_db address: $VAULT_DB_ADDR"
+echo
+
+PS4="$ " ; set -x
+
+vault audit list | grep -q "file/" \
+    || vault audit enable file file_path=/var/log/vault/vault_audit.log format=json
+
+vault secrets list | grep -q "database/" \
+    || vault secrets enable database
+vault write database/config/test_db_config \
+    plugin_name=postgresql-database-plugin \
+    allowed_roles="my_db_role" \
+    connection_url="postgresql://{{username}}:{{password}}@vault_db:5432/test_db?sslmode=disable" \
+    username="postgres" \
+    password="postgres"
+vault write database/roles/my_db_role \
+    db_name="test_db_config" \
+    creation_statements="select current_user; \
+        create role \"{{name}}\" with login password '{{password}}' valid until '{{expiration}}'; \
+        grant select on all tables in schema public to \"{{name}}\";" \
+    default_ttl="30m" \
+    max_ttl="12h"
+
+vault read database/creds/my_db_role
+
+# Login:
+# psql -h $VAULT_DB_ADDR -d $DBNAME -U $USERNAME
