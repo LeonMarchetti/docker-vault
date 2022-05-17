@@ -100,6 +100,14 @@ Los templates se escriben como templates de Go. En el lugar donde se accede a un
         {{ .Data.data.value }}
     {{ end }}
 
+## systemd - Unidad de Servicio
+
+Ver [Systemd Service File for Vault](https://medium.com/hashicorp-engineering/systemd-service-file-for-vault-3e339ff86bc6).
+
+Ver [vault.service](), un archivo de unidad de servicio preparado para ejecutar al servidor de Vault como servicio de systemd. Almacenar en el directorio `/etc/systemd/system`.
+
+> **TODO**: Ver problema con `mlock`, una herramienta para bloquear la memoria, al tratar de ejecutar `vault server` en producción con un usuario que no sea root aparece un error diciendo o que "mlock" no está disponible en el sistema o el usuario necesita permisos de Root. Si se necesita deshabilitar hay que agregar en [config.hcl]() la linea: `disable_mlock = true`
+
 ## Acerca
 
 Saqué el `Dockerfile` de `vault_ssh_helper` de [erryg/docker-vault-ssh-helper](https://github.com/errygg/docker-vault-ssh-helper), con modificaciones para cambiar los volúmenes y los usuarios creados.
