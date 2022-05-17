@@ -1,0 +1,26 @@
+#!/bin/sh
+export VAULT_ADDR="http://localhost:8200"
+
+PS4="$ " ; set -x
+
+vault auth list | grep -q "approle/" \
+    || vault auth enable approle
+
+vault policy write my-policy - <<EOF
+path "kv/data/my_secret" {
+    capabilities = ["read"]
+}
+EOF
+
+vault write auth/approle/role/my-role \
+    secret_id_ttl=10m \
+    token_num_uses=10 \
+    token_ttl=20m \
+    token_max_ttl=30m \
+    secret_id_num_uses=40 \
+    policies=my-policy
+
+vault read auth/approle/role/my-role/role-id
+vault write -f auth/approle/role/my-role/secret-id
+
+# vault write auth/approle/login role_id="" secret_id=""

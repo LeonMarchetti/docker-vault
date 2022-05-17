@@ -1,1 +1,7 @@
 /volumes/logs/
+
+# Vault Agent
+/volumes/config/agent/roleid
+/volumes/config/agent/secretid
+/volumes/config/agent/sink
+/volumes/config/agent/example.txt

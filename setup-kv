@@ -1,0 +1,11 @@
+#!/bin/sh
+export VAULT_ADDR="http://localhost:8200"
+
+PS4="$ " ; set -x
+
+vault secrets list | grep -q "kv/" \
+    || vault secrets enable --version=2 kv
+
+vault kv put kv/my_secret value="s3cr3t"
+
+# vault kv get kv/my_secret

@@ -75,6 +75,31 @@ Digite «help» para obtener ayuda.
 [v-root-my_db_ro-4M1jszoPz2Xp52Nx3XMY-1652442153] test_db >
 ```
 
+### Vault Agent
+
+> Web oficial: [Vault Agent](https://www.vaultproject.io/docs/agent)
+
+El agente es un programa demoño que se interactúa automáticamente con el servidor de Vault.
+
+Configurar [`agent.hcl`](volumes/config/agent/agent.hcl) con la dirección del servidor, el método de autenticación y el template para escribir el archivo con los secretos de Vault.
+
+Se ejecuta con:
+
+    vault agent -config=agent.hcl
+
+Ver [`setup-approle`](setup-approle) para ver como configurar el método de autenticación AppRole para que el agente pueda acceder a Vault con los permisos correspondientes. En `agent.hcl` se especifica la ubicación de dos archivos donde colocar los ids que devuelve el comando para crear o renovar el rol:
+
+- Rol ID: `vault read auth/approle/role/my-role/role-id`
+- Secret ID: `vault write -f auth/approle/role/my-role/secret-id`
+
+> El Rol ID es el mismo desde que se crea el rol, pero al Secret ID hay que renovarlo cuando se vence.
+
+Los templates se escriben como templates de Go. En el lugar donde se accede a uno de los valores de un secreto hay que prefijarlo con `.Data.data` para obtener el valor.
+
+    {{ with secret "kv/data/my_secret" }}
+        {{ .Data.data.value }}
+    {{ end }}
+
 ## Acerca
 
 Saqué el `Dockerfile` de `vault_ssh_helper` de [erryg/docker-vault-ssh-helper](https://github.com/errygg/docker-vault-ssh-helper), con modificaciones para cambiar los volúmenes y los usuarios creados.
