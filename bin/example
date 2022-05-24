@@ -1,0 +1,36 @@
+#!/bin/sh
+[ -z "$VAULT_ADDR" ] && export VAULT_ADDR="http://localhost:8200"
+
+enable_kv() {
+    engineList=$(vault secrets list)
+    for engine in "$@"; do
+        echo "$engineList" | grep -q "$engine/" && vault secrets disable "$engine"
+        vault secrets enable -version=2 -path="$engine" kv
+    done
+}
+
+enable_kv "mapuche" #"pilaga"
+
+vault auth list | grep -q 'userpass/' && vault auth disable userpass
+vault auth enable userpass
+
+vault kv put mapuche/sec1 value='alfa' 1>/dev/null
+vault kv put mapuche/sec2 value='bravo' 1>/dev/null
+vault kv put mapuche/sec3 value='charlie' 1>/dev/null
+vault kv put mapuche/dir1/sec4 value='delta' 1>/dev/null
+vault kv put mapuche/dir1/sec5 value='echo' 1>/dev/null
+vault kv put mapuche/dir2/sec6 value='foxtrot' 1>/dev/null
+vault kv put mapuche/dir2/sec7 value='golf' 1>/dev/null
+
+echo 'path "mapuche/*" {capabilities=["create","read","update","delete","list"]}' | vault policy write pol1 -
+echo 'path "mapuche/*" {capabilities=["read"]}' | vault policy write pol2 -
+echo 'path "mapuche/dir1/*" {capabilities=["create","read","update","delete","list"]}' | vault policy write pol3 -
+echo 'path "mapuche/dir2/*" {capabilities=["create","read","update","delete","list"]}' | vault policy write pol4 -
+
+vault write auth/userpass/users/user1 password='user1' policies='pol1'
+vault write auth/userpass/users/user2 password='user2' policies='pol1'
+vault write auth/userpass/users/user3 password='user3' policies='pol3,pol4'
+
+# vault kv list mapuche
+# vault kv list mapuche/dir1
+# export VAULT_TOKEN=$(vault login -method=userpass -no-store -token-only username=user1 password=user1)

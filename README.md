@@ -108,6 +108,24 @@ Ver [vault.service](), un archivo de unidad de servicio preparado para ejecutar 
 
 > **TODO**: Ver problema con `mlock`, una herramienta para bloquear la memoria, al tratar de ejecutar `vault server` en producción con un usuario que no sea root aparece un error diciendo o que "mlock" no está disponible en el sistema o el usuario necesita permisos de Root. Si se necesita deshabilitar hay que agregar en [config.hcl]() la linea: `disable_mlock = true`
 
+## Comandos
+
+Ver [`prueba`](bin/prueba), un script SH con comandos de Bash para ver qué se puede hacer con el cliente de Vault.
+
+- `listPolicies`: Lista todas las políticas y sus secretos habilitados.
+    - Cada política tiene reglas que indican los permisos que otorga para cada secreto o grupo de secretos.
+    - `vault policy list`
+    - `vault policy read $policy`
+- `listUsers`: Lista todos los usuarios de Userpass con sus políticas.
+    - Luego se debería poder listar que sécretos tienen habilitados cada usuario según sus políticas.
+    - `vault list auth/userpass/users`
+- `listUserpass`: Lista todos los tokens activos de todos los usuarios de Userpass.
+    - Se saltea todos los tokens que se hallan creado por otros métodos, como el root.
+    - Lista los **accessors**, que son como un alias del token para poder ver sus propiedades, renombrarlos o revocarlos.
+    - `vault list auth/token/accessors`
+- `revokeUser`: Revoca los tokens de un usuario de Userpass.
+    - Usa `vault token revoke --accessor "$accessor"` para revocar un token en particular, y lo ejecuta para todos los tokens no revocados de un usuario.
+
 ## Acerca
 
 Saqué el `Dockerfile` de `vault_ssh_helper` de [erryg/docker-vault-ssh-helper](https://github.com/errygg/docker-vault-ssh-helper), con modificaciones para cambiar los volúmenes y los usuarios creados.

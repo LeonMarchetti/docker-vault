@@ -1,0 +1,62 @@
+#!/bin/sh
+listPolicies() {
+    policies=$(vault policy list | grep -Ev '\b(default|root)\b')
+
+    echo "Políticas:"
+    for p in $policies; do
+        echo "- $p"
+        paths=$(vault policy read "$p" | grep -Po '(?<=path ")[\w\/*]*(?=")')
+        for path in $paths; do
+            echo -n "\t- $path\n"
+        done
+    done
+}
+
+listUsers() {
+    users=$(vault list -format="yaml" auth/userpass/users | sed 's/- //g')
+
+    echo "Usuarios:"
+    for user in $users; do
+        echo "- $user"
+        policies=$(vault read auth/userpass/users/$user | grep -Po '(?<=^policies)\s*\[.*\]' | sed 's/[][]//g')
+        for policy in $policies; do
+            echo -n "\t- $policy\n"
+        done
+    done
+}
+
+listUserpass() {
+    accessors=$(vault list -format="yaml" auth/token/accessors | sed 's/- //g')
+    for accessor in $accessors; do
+        user=$(vault token lookup --accessor "$accessor" | grep -Po '(?<=auth\/userpass\/login\/)\w+')
+        if [ $user ]; then
+            echo "- '$user': $accessor"
+        fi
+    done
+}
+
+revokeUser() {
+    if [ -z $1 ]; then
+        echo "No se ingresó el nombre de usuario"
+        return 2
+    fi
+
+    accessors=$(vault list -format="yaml" auth/token/accessors | sed 's/- //g')
+    notFound=1
+    for accessor in $accessors; do
+        user=$(vault token lookup --accessor "$accessor" | grep -Po '(?<=auth\/userpass\/login\/)\w+')
+        if [ "$user" = "$1" ]; then
+            vault token revoke --accessor "$accessor" 1>/dev/null
+            notFound=
+        fi
+    done
+
+    if [ $notFound ]; then
+        echo "Usuario '$1' no encontrado"
+        return 1
+    fi
+
+    echo "Usuario '$1' revocado"
+}
+
+$@
