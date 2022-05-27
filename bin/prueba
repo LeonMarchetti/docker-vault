@@ -59,4 +59,37 @@ revokeUser() {
     echo "Usuario '$1' revocado"
 }
 
+listUsersService() {
+    service=$1
+    policies=$(vault policy list | grep -Ev '\b(default|root)\b')
+
+    # Lista las políticas con los permisos a los secretos relacionados con el servicio
+    policiesService=
+    for policy in $policies; do
+        secrets=$(vault policy read "$policy" | grep -Po '(?<=path ")[\w\/*]*(?=")')
+        for secret in $secrets; do
+            case "$secret" in
+                "$service"*)
+                    policiesService="$policiesService $policy"
+                    break ;;
+            esac
+        done
+    done
+
+    # Lista los usuarios asociados a las políticas
+    echo "Usuarios de '$service':"
+
+    users=$(vault list -format="yaml" auth/userpass/users | sed 's/- //g')
+    for user in $users; do
+        policiesUser=$(vault read auth/userpass/users/$user | grep -Po '(?<=^policies)\s*\[.*\]' | sed 's/[][]//g')
+        for policy in $policiesUser; do
+            case "$policiesService" in
+                *"$policy"*)
+                    echo "- $user"
+                    break ;;
+            esac
+        done
+    done
+}
+
 $@

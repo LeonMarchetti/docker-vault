@@ -125,6 +125,7 @@ Ver [`prueba`](bin/prueba), un script SH con comandos de Bash para ver qué se p
     - `vault list auth/token/accessors`
 - `revokeUser`: Revoca los tokens de un usuario de Userpass.
     - Usa `vault token revoke --accessor "$accessor"` para revocar un token en particular, y lo ejecuta para todos los tokens no revocados de un usuario.
+- `listUsersService`: Lista los usuarios con permisos a los secretos de un servicio.
 
 ## Acerca
 
