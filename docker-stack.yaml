@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  vault_server:
+    image: docker_vault_vault_server
+    ports: [8200:8200]
+    environment:
+      SKIP_SETCAP: 1
+      VAULT_ADDR: http://localhost:8200
+    cap_add: [IPC_LOCK]
+    volumes:
+      - ./volumes/logs:/var/log/vault
+      - ./volumes/config:/etc/vault.d
+    depends_on: [ vault_db ]
+    secrets: [ prueba ]
+
+  vault_ssh_helper:
+    image: docker_vault_vault_ssh_helper
+
+  vault_client:
+    image: docker_vault_vault_client
+    entrypoint: tail -f /dev/null
+    environment:
+      NO_PROXY: ${no_proxy},vault_server
+      VAULT_ADDR: http://vault_server:8200
+      VAULT_TOKEN: root
+
+  vault_db:
+    image: postgres:11-alpine
+    volumes:
+      - ./volumes/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vault"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+secrets:
+  prueba:
+    external: true
