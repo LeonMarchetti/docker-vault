@@ -32,6 +32,7 @@ echo 'path "mapuche/dir2/*" {capabilities=["create","read","update","delete","li
 echo 'path "pilaga/*" {capabilities=["read"]}' | vault policy write pol5 -
 echo 'path "mapuche/dir1/*" {capabilities=["read"]} path "pilaga/*" {capabilities=["read"]}' | vault policy write pol6 -
 echo 'path "pilaga/sec8" {capabilities=["read"]} path "pilaga/sec9" {capabilities=["read","update"]}' | vault policy write pol7 -
+vault policy write admin ./volumes/config/admin.hcl
 
 vault write auth/userpass/users/user1 password='user1' policies='pol1'
 vault write auth/userpass/users/user2 password='user2' policies='pol1'
@@ -39,6 +40,8 @@ vault write auth/userpass/users/user3 password='user3' policies='pol3,pol4'
 vault write auth/userpass/users/user4 password='user4' policies='pol5'
 vault write auth/userpass/users/user5 password='user5' policies='pol6'
 vault write auth/userpass/users/user6 password='user6' policies='pol7'
+
+vault write auth/userpass/users/admin password='admin' policies='admin'
 
 # vault kv list mapuche
 # vault kv list mapuche/dir1
